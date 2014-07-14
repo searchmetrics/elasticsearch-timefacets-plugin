@@ -31,7 +31,7 @@
   </parent>
 
   <properties>
-    <elasticsearch.version>1.1.1</elasticsearch.version>
+    <elasticsearch.version>1.2.2</elasticsearch.version>
   </properties>
 
   <distributionManagement>
@@ -57,14 +57,8 @@
     <dependency>
       <groupId>org.elasticsearch</groupId>
       <artifactId>elasticsearch</artifactId>
-      <version>1.1.1</version>
+      <version>${elasticsearch.version}</version>
       <scope>compile</scope>
-    </dependency>
-        
-    <dependency>
-      <groupId>com.carrotsearch</groupId>
-      <artifactId>hppc</artifactId>
-      <version>0.5.3</version>
     </dependency>
 
     <dependency>

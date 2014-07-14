@@ -1,7 +1,5 @@
 package crate.elasticsearch.plugin.facet;
 
-import crate.elasticsearch.facet.distinct.DistinctDateHistogramFacetParser;
-import crate.elasticsearch.facet.distinct.InternalDistinctDateHistogramFacet;
 import crate.elasticsearch.facet.latest.LatestFacetParser;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.inject.Module;
@@ -35,7 +33,6 @@ public class FacetPlugin extends AbstractPlugin {
     }
 
     public void onModule(FacetModule module) {
-        module.addFacetProcessor(DistinctDateHistogramFacetParser.class);
         module.addFacetProcessor(LatestFacetParser.class);
     }
 }

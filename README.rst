@@ -2,49 +2,6 @@
 Elasticsearch Plugins
 =====================
 
-Distinct Date Histogram Facet
-=============================
-
-This facet counts distinct values for string and numeric fields.
-
-Example::
-
-    {
-        "query" : {
-            "match_all" : {}
-        },
-        "facets" : {
-            "distinct" : {
-                "distinct_date_histogram" : {
-                    "field" : "field_name",
-                    "value_field" : "value_field_name",
-                    "interval" : "day"
-                }
-            }
-        }
-    }
-
-Result::
-
- "distinct":{
-     "_type":"distinct_date_histogram",
-     "entries":[
-         "{"time":950400000,"count":2},
-         "{"time":1555200000,"count":3}
-     ],
-     "count":4
- }
-
-The "count" is the number of distinct values in the time period. The
-outer "count" is the number of total distinct values.
-
-Works like the "date_histogram" with these exceptions:
-
-    - value_field is mandatory
-    - value_field must be of type String or Numeric
-    - no value_script
-
-
 "Latest" Facet
 ==============
 
