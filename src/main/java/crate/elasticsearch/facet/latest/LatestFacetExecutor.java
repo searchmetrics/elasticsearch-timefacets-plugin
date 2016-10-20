@@ -1,17 +1,17 @@
 package crate.elasticsearch.facet.latest;
 
 import org.apache.lucene.index.AtomicReaderContext;
+import org.apache.lucene.index.SortedNumericDocValues;
 import org.elasticsearch.cache.recycler.CacheRecycler;
+import org.elasticsearch.common.hppc.LongObjectOpenHashMap;
 import org.elasticsearch.common.recycler.Recycler;
 import org.elasticsearch.index.fielddata.FieldDataType;
 import org.elasticsearch.index.fielddata.IndexNumericFieldData;
-import org.elasticsearch.index.fielddata.LongValues;
 import org.elasticsearch.search.facet.FacetExecutor;
 import org.elasticsearch.search.facet.InternalFacet;
 import org.elasticsearch.search.facet.LongFacetAggregatorBase;
 
 import java.io.IOException;
-import org.elasticsearch.common.hppc.LongObjectOpenHashMap;
 
 public class LatestFacetExecutor extends FacetExecutor {
 
@@ -57,7 +57,7 @@ public class LatestFacetExecutor extends FacetExecutor {
 
     class Collector extends FacetExecutor.Collector {
 
-        private LongValues keyValues;
+        private SortedNumericDocValues keyValues;
 
         @Override
         public void postCollection() {
@@ -72,8 +72,8 @@ public class LatestFacetExecutor extends FacetExecutor {
         @Override
         public void setNextReader(AtomicReaderContext context) throws IOException {
             keyValues = keyFieldName.load(context).getLongValues();
-            aggregator.valueValues  = valueFieldName.load(context).getLongValues();
-            aggregator.tsValues  = tsFieldName.load(context).getLongValues();
+            aggregator.valueValues = valueFieldName.load(context).getLongValues();
+            aggregator.tsValues = tsFieldName.load(context).getLongValues();
         }
     }
 
@@ -82,22 +82,25 @@ public class LatestFacetExecutor extends FacetExecutor {
 
         final LongObjectOpenHashMap<InternalLatestFacet.Entry> entries;
 
-        LongValues valueValues;
-        LongValues tsValues;
-        public Aggregator(LongObjectOpenHashMap<InternalLatestFacet.Entry> entries){
+        SortedNumericDocValues valueValues;
+        SortedNumericDocValues tsValues;
+
+        public Aggregator(LongObjectOpenHashMap<InternalLatestFacet.Entry> entries) {
             this.entries = entries;
         }
 
         @Override
         public void onValue(int docId, long key) {
             InternalLatestFacet.Entry entry = entries.get(key);
-            int size = tsValues.setDocument(docId);
-            if(size > 0){
-                long ts = tsValues.nextValue();
+            tsValues.setDocument(docId);
+            int size = tsValues.count();
+            if (size > 0) {
+                long ts = tsValues.valueAt(0);
                 if (entry == null || entry.ts < ts) {
-                    size = valueValues.setDocument(docId);
-                    if(size > 0){
-                        int value = (int)valueValues.nextValue();
+                    valueValues.setDocument(docId);
+                    size = valueValues.count();
+                    if (size > 0) {
+                        int value = (int) valueValues.valueAt(0);
                         if (entry == null) {
                             entry = new InternalLatestFacet.Entry(ts, value);
                             entries.put(key, entry);
